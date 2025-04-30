@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #d62828; }
+        input, textarea, select, button { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 10px; }
+        button { background-color: #e63946; color: white; cursor: pointer; }
+        .item-list { margin-top: 30px; }
+        .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .delete-btn { background: #d62828; color: white; border: none; padding: 5px 10px; border-radius: 7px; cursor: pointer; float: right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Добавить элемент</h2>
+    <form id="itemForm">
+        <input type="text" id="title" placeholder="Название" required>
+        <textarea id="description" rows="3" placeholder="Описание"></textarea>
+        <input type="text" id="image" placeholder="Ссылка на изображение" required>
+        <select id="type" required>
+            <option value="">Выберите категорию</option>
+            <option value="weapon">Оружие</option>
+            <option value="military">Вооружение</option>
+        </select>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <div class="item-list" id="itemsList"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLOW7SRFGz05qtmnhOV0nCTO69Ea1EbHI",
+        authDomain: "html5gsait.firebaseapp.com",
+        databaseURL: "https://html5gsait-default-rtdb.firebaseio.com",
+        projectId: "html5gsait",
+        storageBucket: "html5gsait.appspot.com",
+        messagingSenderId: "820304647163",
+        appId: "1:820304647163:web:ddebb69e80f373cb0dcdd4"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const form = document.getElementById('itemForm');
+    const itemsList = document.getElementById('itemsList');
+
+    function loadItems() {
+        db.ref('items').on('value', snapshot => {
+            itemsList.innerHTML = '';
+            snapshot.forEach(childSnapshot => {
+                const key = childSnapshot.key;
+                const item = childSnapshot.val();
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <strong>${item.title}</strong> (${item.type})<br>
+                    <small>${item.description.substring(0, 50)}...</small>
+                    <button class="delete-btn" onclick="deleteItem('${key}')">Удалить</button>
+                `;
+                itemsList.appendChild(div);
+            });
+        });
+    }
+
+    function deleteItem(key) {
+        db.ref('items/' + key).remove();
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const image = document.getElementById('image').value.trim();
+        const type = document.getElementById('type').value;
+
+        if (!title || !description || !image || !type) return;
+
+        db.ref('items').push({ title, description, image, type });
+
+        form.reset();
+    });
+
+    loadItems();
+</script>
+
+</body>
+</html>

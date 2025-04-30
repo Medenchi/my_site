@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Оружие и Вооружение</title>
+
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        /* Базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to bottom right, #ff4e50, #f9d423);
+            color: white;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            background: linear-gradient(to right, #c21010, #e63946);
+            text-align: center;
+            padding: 2rem 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-top: 2rem;
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+        }
+
+        .cards-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .cards-section {
+                flex-direction: row;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: black;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .card {
+                width: calc(50% - 1rem);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card {
+                width: calc(33% - 1rem);
+            }
+        }
+
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .card-title {
+            color: #d62828;
+            font-size: 1.5rem;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <h1>Коллекция Оружия и Вооружения</h1>
+</header>
+
+<div class="container">
+
+    <h2 class="section-title">Оружие</h2>
+    <section class="cards-section" id="weaponsList"></section>
+
+    <h2 class="section-title">Вооружение</h2>
+    <section class="cards-section" id="militaryList"></section>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+<script>
+    // Твой конфиг Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLOW7SRFGz05qtmnhOV0nCTO69Ea1EbHI",
+        authDomain: "html5gsait.firebaseapp.com",
+        databaseURL: "https://html5gsait-default-rtdb.firebaseio.com",
+        projectId: "html5gsait",
+        storageBucket: "html5gsait.appspot.com",
+        messagingSenderId: "820304647163",
+        appId: "1:820304647163:web:ddebb69e80f373cb0dcdd4"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const weaponsList = document.getElementById("weaponsList");
+    const militaryList = document.getElementById("militaryList");
+
+    function renderCards() {
+        weaponsList.innerHTML = '';
+        militaryList.innerHTML = '';
+
+        db.ref('items').on('value', snapshot => {
+            snapshot.forEach(childSnapshot => {
+                const item = childSnapshot.val();
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}">
+                    <h2 class="card-title">${item.title}</h2>
+                    <p class="card-desc">${item.description}</p>
+                `;
+
+                if (item.type === 'weapon') {
+                    weaponsList.appendChild(card);
+                } else if (item.type === 'military') {
+                    militaryList.appendChild(card);
+                }
+            });
+        });
+    }
+
+    renderCards();
+</script>
+
+</body>
+</html>
